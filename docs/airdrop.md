@@ -23,10 +23,10 @@ _Contract constructor initializes the airdrop settings._
 | _fromAddress | address | Address from which the tokens will be sent. |
 | _airdropType | uint256 | Airdrop type (0 = ERC20, 1 = ERC721). |
 
-### startAirdrop
+### _startAirdrop
 
 ```solidity
-function startAirdrop(uint256[] unitOfToken) public returns (bool)
+function _startAirdrop(uint256[] unitOfToken) internal returns (bool)
 ```
 
 _Starts the airdrop process for either ERC20 or ERC721 tokens._
@@ -46,7 +46,7 @@ _Starts the airdrop process for either ERC20 or ERC721 tokens._
 ### getEligibility
 
 ```solidity
-function getEligibility(address _address, uint256 tokenId) public view returns (bool)
+function getEligibility(address _address) public view returns (bool)
 ```
 
 _Checks if an address is eligible for an airdrop._
@@ -56,7 +56,6 @@ _Checks if an address is eligible for an airdrop._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | _address | address | Address to check. |
-| tokenId | uint256 | Token ID (used only for ERC721). |
 
 #### Return Values
 
@@ -64,10 +63,10 @@ _Checks if an address is eligible for an airdrop._
 | ---- | ---- | ----------- |
 | [0] | bool | True if eligible, false otherwise. |
 
-### whiteList
+### _whiteListAddress
 
 ```solidity
-function whiteList(address[] _address) public returns (bool)
+function _whiteListAddress(address[] _address) internal returns (bool)
 ```
 
 _Adds addresses to the whitelist._
@@ -78,10 +77,10 @@ _Adds addresses to the whitelist._
 | ---- | ---- | ----------- |
 | _address | address[] | Array of addresses to whitelist. |
 
-### removeFromWhiteList
+### _removeFromWhiteList
 
 ```solidity
-function removeFromWhiteList(address _address) public returns (bool)
+function _removeFromWhiteList(address _address) internal returns (bool)
 ```
 
 _Removes an address from the whitelist._
@@ -99,6 +98,15 @@ function getWhiteList() public view returns (address[])
 ```
 
 _Returns the list of whitelisted addresses._
+
+### airdropVersion
+
+```solidity
+function airdropVersion() public view returns (uint256)
+```
+
+_Returns the current airdrop version state
+Useful to know the current airdrop version_
 
 ### isWhiteListed
 
@@ -120,10 +128,10 @@ _Checks if an address is in the whitelist._
 | ---- | ---- | ----------- |
 | [0] | bool | True if whitelisted, false otherwise. |
 
-### resetAirdrop
+### _resetAirdrop
 
 ```solidity
-function resetAirdrop() public returns (bool)
+function _resetAirdrop() internal returns (bool)
 ```
 
 _Reset an aurdrop._
@@ -160,59 +168,6 @@ _Checks if an address exists in the whitelist._
 | ---- | ---- | ----------- |
 | [0] | bool | True if found, false otherwise. |
 
-### _checkReceiver
-
-```solidity
-function _checkReceiver(address to, uint256 tokenId) internal returns (bool)
-```
-
-inherits Ownable:
-### owner
-
-```solidity
-function owner() public view virtual returns (address)
-```
-
-_Returns the address of the current owner._
-
-### _checkOwner
-
-```solidity
-function _checkOwner() internal view virtual
-```
-
-_Throws if the sender is not the owner._
-
-### renounceOwnership
-
-```solidity
-function renounceOwnership() public virtual
-```
-
-_Leaves the contract without owner. It will not be possible to call
-`onlyOwner` functions. Can only be called by the current owner.
-
-NOTE: Renouncing ownership will leave the contract without an owner,
-thereby disabling any functionality that is only available to the owner._
-
-### transferOwnership
-
-```solidity
-function transferOwnership(address newOwner) public virtual
-```
-
-_Transfers ownership of the contract to a new account (`newOwner`).
-Can only be called by the current owner._
-
-### _transferOwnership
-
-```solidity
-function _transferOwnership(address newOwner) internal virtual
-```
-
-_Transfers ownership of the contract to a new account (`newOwner`).
-Internal function without access restriction._
-
  --- 
 ### Events:
 ### airdroped
@@ -230,7 +185,7 @@ event receivedTokens(address operator, address from, uint256 tokenId, bytes data
 ### TOKENtransfered
 
 ```solidity
-event TOKENtransfered(uint256 tokenId, bool success)
+event TOKENtransfered(uint256 unitOfToken, string airdropType)
 ```
 
 ### addressAddedToWhitelist
@@ -243,12 +198,5 @@ event addressAddedToWhitelist(address[] _address)
 
 ```solidity
 event removedAddress(address _address)
-```
-
-inherits Ownable:
-### OwnershipTransferred
-
-```solidity
-event OwnershipTransferred(address previousOwner, address newOwner)
 ```
 

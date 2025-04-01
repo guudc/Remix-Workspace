@@ -70,14 +70,12 @@ pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";  
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol"; 
 
 
 
-contract Airdrop is Ownable(address(this)) {
+contract Airdrop  {
     mapping(uint256 => mapping(address => bool)) internal _hasClaimed;
-    mapping(uint256 => bool) transfferedTOKEN_Success;
     address[] internal  _whiteList;
     /*
         This keeps tag of the current hasClaimed varaible used. 
@@ -96,7 +94,7 @@ contract Airdrop is Ownable(address(this)) {
     //EVENTS
     event airdroped(address[] recipients, uint256[] unitOfToken);
     event receivedTokens(address operator, address from, uint256 tokenId, bytes data);
-    event TOKENtransfered(uint256 tokenId, bool success);
+    event TOKENtransfered(uint256 unitOfToken, string airdropType);
     event addressAddedToWhitelist(address[] _address);
     event removedAddress(address _address);
 
@@ -106,7 +104,7 @@ contract Airdrop is Ownable(address(this)) {
      * @param _fromAddress Address from which the tokens will be sent.
      * @param _airdropType Airdrop type (0 = ERC20, 1 = ERC721).
      */
-     constructor(address _tokenAddress, address _fromAddress, uint _airdropType) {
+     constructor(address _tokenAddress, address _fromAddress, uint _airdropType)  {
         require(_airdropType==0 || _airdropType==1, "Only 0 or 1 accepted as airdrop type");
         tokenAddress = _tokenAddress;
         fromAddress = _fromAddress;
@@ -117,7 +115,7 @@ contract Airdrop is Ownable(address(this)) {
     * @param unitOfToken Array specifying the amount (for ERC20) or token ID (for ERC721) to be sent.
     * @return True if the airdrop was successful.
     */
-    function startAirdrop(uint256[] calldata unitOfToken) public onlyOwner returns(bool){
+    function _startAirdrop(uint256[] calldata unitOfToken) internal returns(bool){
         require(tokenAddress != address(0), "Zero address");  // we need to add a functionality to check  whether a valid tokenID is passed or no or if we have entered number of tokens greater than total supply for startAirDrop functionality to work properly
         require(_whiteList.length > 0, "No whitelisted address");
         require(_whiteList.length == unitOfToken.length,"Number of Tokens and number of whitelisted addresses are not equal");
@@ -130,17 +128,15 @@ contract Airdrop is Ownable(address(this)) {
             token = IERC721(tokenAddress);
         }
         emit airdroped(_whiteList, unitOfToken);
+        address recipient;
         for (uint i = 0; i < _whiteList.length; i++) {
-            address recipient = _whiteList[i];
-            //mapping uint to bool
-            require(!transfferedTOKEN_Success[unitOfToken[i]],"Allready Transfered");
+            recipient = _whiteList[i];
             //checking if there is enough balance
-            if(airdropType == 0) {require(token.balanceOf(fromAddress) > unitOfToken[i],"Not enough balance");}
+            if(airdropType == 0) {require(_token.balanceOf(fromAddress) > unitOfToken[i],"Not enough balance");}
             else{require(token.ownerOf(unitOfToken[i]) == fromAddress, "Not the owner of this NFT[]");}
             if (!_hasClaimed[airdropCount][recipient]) {
                 _hasClaimed[airdropCount][recipient] = true; // Mark as claimed 
-                transfferedTOKEN_Success[unitOfToken[i]] = true; // Mark token as transferred
-                emit TOKENtransfered(unitOfToken[i], transfferedTOKEN_Success[unitOfToken[i]]); // To understand the point of Failure
+                if(airdropType == 0){emit TOKENtransfered(unitOfToken[i], "Token");}else{emit TOKENtransfered(unitOfToken[i], "Nft");}  
                 if(airdropType==0){_token.transferFrom(fromAddress, recipient, unitOfToken[i]);}
                 else{token.transferFrom(fromAddress, recipient, unitOfToken[i]);} 
             }
@@ -151,18 +147,16 @@ contract Airdrop is Ownable(address(this)) {
     /**
      * @dev Checks if an address is eligible for an airdrop.
      * @param _address Address to check.
-     * @param tokenId Token ID (used only for ERC721).
      * @return True if eligible, false otherwise.
      */
-    function getEligibility(address _address, uint256 tokenId) public view returns(bool) {
-        
-        return !_hasClaimed[airdropCount][_address] && checkAddress(_address ) && !transfferedTOKEN_Success[tokenId];
+    function getEligibility(address _address) public view returns(bool) {
+        return !_hasClaimed[airdropCount][_address] && checkAddress(_address);
     }
     /**
      * @dev Adds addresses to the whitelist.
      * @param _address Array of addresses to whitelist.
     */
-    function whiteList(address[] calldata _address) public onlyOwner returns(bool) {
+    function _whiteListAddress(address[] calldata _address) internal returns(bool) {
         for (uint i = 0; i < _address.length; i++) {
             require(_address[i] != address(0),"Zero Address present");
             if(airdropType==1){require(_checkReceiver(_address[i], 0), "Faulty address found");}
@@ -176,7 +170,7 @@ contract Airdrop is Ownable(address(this)) {
      * @dev Removes an address from the whitelist.
      * @param _address Address to remove.
     */
-    function removeFromWhiteList(address _address) public onlyOwner returns(bool) {
+    function _removeFromWhiteList(address _address) internal returns(bool) {
         require(checkAddress(_address),"Address does not exist in the whitelist"); //<<<<<------Added New------->>>>>
         for (uint256 i = 0; i < _whiteList.length; i++) {
             if (_whiteList[i] == _address) {
@@ -192,8 +186,14 @@ contract Airdrop is Ownable(address(this)) {
      * @dev Returns the list of whitelisted addresses.
     */
     function getWhiteList() public view returns(address[] memory) {
-        return _whiteList;
-        
+        return _whiteList;    
+    }
+    /**
+     * @dev Returns the current airdrop version state
+     * Useful to know the current airdrop version
+    */
+    function airdropVersion() public view returns(uint) {
+        return airdropCount;    
     }
     /**
      * @dev Checks if an address is in the whitelist.
@@ -207,7 +207,7 @@ contract Airdrop is Ownable(address(this)) {
      * @dev Reset an aurdrop.
      * @return True.
      */
-    function resetAirdrop() public onlyOwner returns(bool) {
+    function _resetAirdrop() internal returns(bool) {
         airdropCount++;
         return true;
     }
@@ -236,12 +236,12 @@ contract Airdrop is Ownable(address(this)) {
     }
 
     /*
-         Internal function to check if the receiver can handle TOKENs
-         This would help us prevent adding blocking addresses as whitelisted address
+    * @dev Internal function to check if the receiver can recieve NFTs
+    *This would help us prevent adding blocking addresses as whitelisted address
     */
-    function _checkReceiver(address to, uint256 tokenId) internal  returns (bool) {
+    function _checkReceiver(address to, uint256 tokenId) private returns (bool) {
         // Check if the address is a contract
-        if (isContract(to) > 0) {
+        if (isContract(to) == 0) {
             return true; //user address cannot be blocking
         }
         //contract address

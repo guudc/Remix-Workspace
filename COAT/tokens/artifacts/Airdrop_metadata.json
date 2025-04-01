@@ -27,60 +27,19 @@
 				"type": "constructor"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					}
-				],
-				"name": "OwnableInvalidOwner",
-				"type": "error"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "account",
-						"type": "address"
-					}
-				],
-				"name": "OwnableUnauthorizedAccount",
-				"type": "error"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "previousOwner",
-						"type": "address"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "newOwner",
-						"type": "address"
-					}
-				],
-				"name": "OwnershipTransferred",
-				"type": "event"
-			},
-			{
 				"anonymous": false,
 				"inputs": [
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "tokenId",
+						"name": "unitOfToken",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
-						"internalType": "bool",
-						"name": "success",
-						"type": "bool"
+						"internalType": "string",
+						"name": "airdropType",
+						"type": "string"
 					}
 				],
 				"name": "TOKENtransfered",
@@ -163,16 +122,24 @@
 				"type": "event"
 			},
 			{
+				"inputs": [],
+				"name": "airdropVersion",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
 						"name": "_address",
 						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "tokenId",
-						"type": "uint256"
 					}
 				],
 				"name": "getEligibility",
@@ -251,126 +218,14 @@
 				],
 				"stateMutability": "nonpayable",
 				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "owner",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "_address",
-						"type": "address"
-					}
-				],
-				"name": "removeFromWhiteList",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "renounceOwnership",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "resetAirdrop",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256[]",
-						"name": "unitOfToken",
-						"type": "uint256[]"
-					}
-				],
-				"name": "startAirdrop",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "newOwner",
-						"type": "address"
-					}
-				],
-				"name": "transferOwnership",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "address[]",
-						"name": "_address",
-						"type": "address[]"
-					}
-				],
-				"name": "whiteList",
-				"outputs": [
-					{
-						"internalType": "bool",
-						"name": "",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "nonpayable",
-				"type": "function"
 			}
 		],
 		"devdoc": {
-			"errors": {
-				"OwnableInvalidOwner(address)": [
-					{
-						"details": "The owner is not a valid owner account. (eg. `address(0)`)"
-					}
-				],
-				"OwnableUnauthorizedAccount(address)": [
-					{
-						"details": "The caller account is not authorized to perform an operation."
-					}
-				]
-			},
 			"kind": "dev",
 			"methods": {
+				"airdropVersion()": {
+					"details": "Returns the current airdrop version state Useful to know the current airdrop version"
+				},
 				"constructor": {
 					"details": "Contract constructor initializes the airdrop settings.",
 					"params": {
@@ -379,11 +234,10 @@
 						"_tokenAddress": "Address of the ERC20 or ERC721 token."
 					}
 				},
-				"getEligibility(address,uint256)": {
+				"getEligibility(address)": {
 					"details": "Checks if an address is eligible for an airdrop.",
 					"params": {
-						"_address": "Address to check.",
-						"tokenId": "Token ID (used only for ERC721)."
+						"_address": "Address to check."
 					},
 					"returns": {
 						"_0": "True if eligible, false otherwise."
@@ -399,42 +253,6 @@
 					},
 					"returns": {
 						"_0": "True if whitelisted, false otherwise."
-					}
-				},
-				"owner()": {
-					"details": "Returns the address of the current owner."
-				},
-				"removeFromWhiteList(address)": {
-					"details": "Removes an address from the whitelist.",
-					"params": {
-						"_address": "Address to remove."
-					}
-				},
-				"renounceOwnership()": {
-					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
-				},
-				"resetAirdrop()": {
-					"details": "Reset an aurdrop.",
-					"returns": {
-						"_0": "True."
-					}
-				},
-				"startAirdrop(uint256[])": {
-					"details": "Starts the airdrop process for either ERC20 or ERC721 tokens.",
-					"params": {
-						"unitOfToken": "Array specifying the amount (for ERC20) or token ID (for ERC721) to be sent."
-					},
-					"returns": {
-						"_0": "True if the airdrop was successful."
-					}
-				},
-				"transferOwnership(address)": {
-					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
-				},
-				"whiteList(address[])": {
-					"details": "Adds addresses to the whitelist.",
-					"params": {
-						"_address": "Array of addresses to whitelist."
 					}
 				}
 			},
@@ -462,14 +280,6 @@
 		"remappings": []
 	},
 	"sources": {
-		"@openzeppelin/contracts/access/Ownable.sol": {
-			"keccak256": "0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://8ed324d3920bb545059d66ab97d43e43ee85fd3bd52e03e401f020afb0b120f6",
-				"dweb:/ipfs/QmfEckWLmZkDDcoWrkEvMWhms66xwTLff9DDhegYpvHo1a"
-			]
-		},
 		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
 			"keccak256": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
 			"license": "MIT",
@@ -494,14 +304,6 @@
 				"dweb:/ipfs/Qmb717ovcFxm7qgNKEShiV6M9SPR3v1qnNpAGH84D6w29p"
 			]
 		},
-		"@openzeppelin/contracts/utils/Context.sol": {
-			"keccak256": "0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12",
-				"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF"
-			]
-		},
 		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
 			"keccak256": "0x79796192ec90263f21b464d5bc90b777a525971d3de8232be80d9c4f9fb353b8",
 			"license": "MIT",
@@ -511,11 +313,11 @@
 			]
 		},
 		"COAT/tokens/airdrop.sol": {
-			"keccak256": "0x8845810ed695f7dbb368e0a5272a9944dd587e98a2893d036d045c954a0fc3ff",
+			"keccak256": "0x571196741a8c17618b7973cf1a8bceeb3ea048aae4e6eeb12e7a8045fd3783d7",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c3595ab2db5f088e6b82ab3ace862f9c0efd8552803328aa616975ee3ff80940",
-				"dweb:/ipfs/QmXnv4dnFRY2eLvcy72b3L6DnR2EJgZmBmLFw7e349KoEx"
+				"bzz-raw://c61a55f00eee6897a2e5c60ed55a304013c4b3a1cf039d12a34716709c8fdcbf",
+				"dweb:/ipfs/QmSw8a2ZQFMS7CfkBmfsXj11K4kxYRJJ9UkGAHdFXKCUcz"
 			]
 		}
 	},
